@@ -3,37 +3,32 @@ name: github-actions-demo
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate HTML file exists
-        run: |
-          test -f index.html
-          echo "index.html exists."
-
-      - name: Validate CSS file exists
-        run: |
-          test -f style.css
-          echo "style.css exists."
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Show deploy environment
+        run: echo "Deploying to ${{ secrets.DEPLOY_ENV }}"
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+        id: deployment
+        uses: actions/deploy-pages@v4
+
 
